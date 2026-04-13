@@ -5,7 +5,8 @@ let socket = null;
 
 export function getSocket() {
   if (!socket) {
-    socket = io('/', { transports: ['websocket', 'polling'] });
+    const SOCKET_BASE = import.meta.env.VITE_API_URL || '';
+    socket = io(SOCKET_BASE || '/', { transports: ['websocket', 'polling'] });
   }
   return socket;
 }

@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: '/api', timeout: 10000, headers: { 'Content-Type': 'application/json' } });
+const API_BASE = import.meta.env.VITE_API_URL || '';
+const api = axios.create({ baseURL: `${API_BASE}/api`, timeout: 10000, headers: { 'Content-Type': 'application/json' } });
 
 // Crises
 export const fetchCrises = (params = {}) => api.get('/crises', { params }).then(r => r.data);
