@@ -138,6 +138,9 @@ body {
 @keyframes crisis-glow { 0%, 100% { border-color: rgba(239,68,68,0.3); box-shadow: 0 0 8px rgba(239,68,68,0.1); } 50% { border-color: rgba(239,68,68,0.7); box-shadow: 0 0 20px rgba(239,68,68,0.3); } }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes ping { 0% { transform: scale(1); opacity: 1; } 75%, 100% { transform: scale(2); opacity: 0; } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes glow-line { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
 .anim-up { animation: fadeInUp 0.45s ease-out forwards; opacity: 0; }
 .anim-in { animation: fadeIn 0.35s ease-out forwards; opacity: 0; }
@@ -210,7 +213,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 }
 
 /* High contrast mode — triggered by prefers-contrast or .high-contrast class */
-@media (prefers-contrast: more), .high-contrast {
+@media (prefers-contrast: more) {
   :root {
     --bg-primary: #000;
     --bg-secondary: #111;

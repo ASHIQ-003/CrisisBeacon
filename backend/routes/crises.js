@@ -9,15 +9,36 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 
 /**
+ * In-memory rate limiter to prevent spam
+ * Limits: 3 requests per 60 seconds per IP
+ */
+const rateLimitStore = new Map();
+
+/**
  * POST /api/crises
  * Report a new crisis (from Guest SOS or Command Center).
  */
 router.post('/', (req, res) => {
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  
+  if (!rateLimitStore.has(ip)) {
+    rateLimitStore.set(ip, []);
+  }
+  
+  const timestamps = rateLimitStore.get(ip).filter(t => now - t < 60000); // keep last 60s
+  timestamps.push(now);
+  rateLimitStore.set(ip, timestamps);
+  
+  if (timestamps.length > 3) {
+    return res.status(429).json({ error: 'Too many requests. Please wait before submitting again.', isRateLimited: true });
+  }
+
   const { type, description, floor, room, reporter_name, reporter_phone, geo_confidence } = req.body;
 
   if (!type) return res.status(400).json({ error: 'type is required' });
 
-  // Smart triage
+  // Automated Protocol Engine
   const existingCrises = getCrises();
   const { severity, protocols, escalation_note } = triageCrisis(type, description, existingCrises, floor);
 

@@ -28,7 +28,11 @@ export default function DemoQR() {
   const [copied, setCopied] = useState('');
 
   useEffect(() => {
-    // Dynamically fetch the laptop's actual network IP address from the backend so phones can connect
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      setBaseUrl(window.location.origin);
+      return;
+    }
+
     const initializeNetworkUrl = async () => {
       try {
         const res = await fetch('/api/network-ip');
@@ -37,11 +41,7 @@ export default function DemoQR() {
         const protocol = window.location.protocol;
         setBaseUrl(`${protocol}//${data.ip}:${port}`);
       } catch (err) {
-        // Fallback if backend isn't reachable
-        const host = window.location.hostname;
-        const port = window.location.port;
-        const protocol = window.location.protocol;
-        setBaseUrl(`${protocol}//${host}${port ? ':' + port : ''}`);
+        setBaseUrl(window.location.origin);
       }
     };
     initializeNetworkUrl();

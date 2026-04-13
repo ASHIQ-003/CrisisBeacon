@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import SeverityBadge, { StatusBadge } from './SeverityBadge';
 import { FiMapPin, FiClock, FiUser } from 'react-icons/fi';
 
@@ -16,8 +17,13 @@ export default function CrisisCard({ crisis, delay = 0 }) {
   const isActive = ['reported', 'assigned', 'acknowledged', 'responding'].includes(crisis.status);
 
   return (
-    <div
-      className={`glass glass-hover anim-up ${isActive && crisis.severity === 'critical' ? 'crisis-pulse' : ''}`}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: delay * 0.06, duration: 0.4, ease: 'easeOut' }}
+      whileHover={{ scale: 1.015, boxShadow: '0 8px 30px rgba(239,68,68,0.12)' }}
+      whileTap={{ scale: 0.98 }}
+      className={`glass glass-hover ${isActive && crisis.severity === 'critical' ? 'crisis-pulse' : ''}`}
       onClick={() => navigate(`/crisis/${crisis.id}`)}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/crisis/${crisis.id}`); } }}
       role="article"
@@ -25,7 +31,6 @@ export default function CrisisCard({ crisis, delay = 0 }) {
       aria-label={`${crisis.severity} ${crisis.type.replace(/_/g, ' ')} crisis at ${crisis.floor}${crisis.room ? ', ' + crisis.room : ''}, status: ${crisis.status}`}
       style={{
         padding: '16px 18px', cursor: 'pointer',
-        animationDelay: `${delay * 0.06}s`,
         borderLeft: `3px solid ${crisis.severity === 'critical' ? '#ef4444' : crisis.severity === 'high' ? '#f59e0b' : crisis.severity === 'medium' ? '#3b82f6' : '#22c55e'}`,
       }}
     >
@@ -69,6 +74,6 @@ export default function CrisisCard({ crisis, delay = 0 }) {
         </div>
         <StatusBadge status={crisis.status} />
       </div>
-    </div>
+    </motion.div>
   );
 }

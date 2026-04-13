@@ -51,7 +51,8 @@ app.get('/', (req, res) => {
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 50, // Limit each IP
-  message: { error: 'Rate limit exceeded. Too many requests.' }
+  message: { error: 'Rate limit exceeded. Too many requests.' },
+  skip: (req) => req.method === 'GET' // Exempt GET requests so Dashboard polling doesn't trigger 429
 });
 
 // Routes
@@ -89,7 +90,11 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`🚨 CrisisBeacon API running on http://localhost:${PORT}`);
-  console.log(`⚡ WebSocket ready on ws://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  server.listen(PORT, () => {
+    console.log(`🚨 CrisisBeacon API running on http://localhost:${PORT}`);
+    console.log(`⚡ WebSocket ready on ws://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

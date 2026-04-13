@@ -4,6 +4,7 @@ import { useSocket } from './hooks/useSocket';
 import toast from 'react-hot-toast';
 
 import Navbar from './components/Navbar';
+import Landing from './pages/Landing';
 import CommandCenter from './pages/CommandCenter';
 import GuestSOS from './pages/GuestSOS';
 import StaffView from './pages/StaffView';
@@ -114,7 +115,8 @@ export default function App() {
         style={{ flex: 1, padding: '24px 20px', maxWidth: 1400, width: '100%', margin: '0 auto' }}
       >
         <Routes>
-          <Route path="/" element={<CommandCenter refreshKey={refreshKey} />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/command" element={<CommandCenter refreshKey={refreshKey} />} />
           <Route path="/sos" element={<GuestSOS />} />
           <Route path="/staff" element={<StaffView refreshKey={refreshKey} />} />
           <Route path="/crisis/:id" element={<CrisisDetail refreshKey={refreshKey} />} />

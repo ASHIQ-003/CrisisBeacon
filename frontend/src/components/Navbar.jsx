@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { FiShield, FiMonitor, FiAlertTriangle, FiUsers, FiBarChart2, FiSmartphone, FiMenu, FiX } from 'react-icons/fi';
 
 const NAV = [
-  { path: '/', label: 'Command Center', icon: FiMonitor },
+  { path: '/', label: 'Home', icon: FiShield },
+  { path: '/command', label: 'Command Center', icon: FiMonitor },
   { path: '/sos', label: 'Guest SOS', icon: FiAlertTriangle },
   { path: '/staff', label: 'Staff', icon: FiUsers },
   { path: '/analytics', label: 'Analytics', icon: FiBarChart2 },

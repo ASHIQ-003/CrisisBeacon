@@ -5,8 +5,25 @@ let socket = null;
 
 export function getSocket() {
   if (!socket) {
-    const SOCKET_BASE = import.meta.env.VITE_API_URL || '';
-    socket = io(SOCKET_BASE || '/', { transports: ['websocket', 'polling'] });
+    try {
+      const SOCKET_BASE = import.meta.env.VITE_API_URL || '';
+      socket = io(SOCKET_BASE || window.location.origin, {
+        transports: ['polling'], // polling only — Vercel serverless doesn't support WebSocket upgrades
+        reconnectionAttempts: 3,
+        timeout: 5000,
+      });
+      socket.on('connect_error', () => {
+        // Silently fail — app works without real-time events
+      });
+    } catch (e) {
+      // Return a no-op stub so the rest of the app never crashes
+      socket = {
+        on: () => {},
+        off: () => {},
+        emit: () => {},
+        engine: { clientsCount: 0 },
+      };
+    }
   }
   return socket;
 }
@@ -17,10 +34,17 @@ export function useSocket(eventHandlers = {}) {
   handlersRef.current = eventHandlers;
 
   useEffect(() => {
-    const s = getSocket();
+    let s;
+    try {
+      s = getSocket();
+    } catch (e) {
+      return;
+    }
 
-    s.on('connect', () => setConnected(true));
-    s.on('disconnect', () => setConnected(false));
+    const onConnect = () => setConnected(true);
+    const onDisconnect = () => setConnected(false);
+    s.on('connect', onConnect);
+    s.on('disconnect', onDisconnect);
 
     // Register event handlers
     const events = Object.keys(handlersRef.current);
@@ -29,13 +53,17 @@ export function useSocket(eventHandlers = {}) {
     });
 
     return () => {
+      s.off('connect', onConnect);
+      s.off('disconnect', onDisconnect);
       events.forEach(event => s.off(event));
     };
   }, []);
 
   const emit = useCallback((event, data) => {
-    const s = getSocket();
-    s.emit(event, data);
+    try {
+      const s = getSocket();
+      s.emit(event, data);
+    } catch (e) {}
   }, []);
 
   return { connected, emit, socket: getSocket() };

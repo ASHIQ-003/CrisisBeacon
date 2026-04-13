@@ -1,8 +1,9 @@
 /**
- * triage.js — Smart crisis severity classifier.
+ * triage.js — Automated Protocol Engine
  *
  * Severity levels: critical | high | medium | low
- * Auto-classifies based on crisis type, keywords, and cluster detection.
+ * Deterministic rule-based classification based on crisis type, keywords, and cluster detection.
+ * Designed for reliability in life-safety scenarios rather than probabilistic AI models.
  */
 
 const CRITICAL_TYPES = ['fire', 'explosion', 'active_threat', 'structural'];

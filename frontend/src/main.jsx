@@ -4,14 +4,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import './index.css';
 import App from './App.jsx';
-import { registerSW } from 'virtual:pwa-register';
-
-const updateSW = registerSW({
-  onNeedRefresh() {},
-  onOfflineReady() {
-    console.log('CrisisBeacon is ready to work completely offline.');
-  },
-});
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
