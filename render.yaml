@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: crisisbeacon-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+    rootDir: backend
