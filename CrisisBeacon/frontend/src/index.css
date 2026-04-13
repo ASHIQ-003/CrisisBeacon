@@ -1,0 +1,224 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #111827;
+  --bg-card: rgba(17, 24, 39, 0.85);
+  --bg-card-hover: rgba(17, 24, 39, 0.95);
+  --border: rgba(75, 85, 99, 0.3);
+  --border-accent: rgba(239, 68, 68, 0.3);
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --accent-red: #ef4444;
+  --accent-amber: #f59e0b;
+  --accent-green: #22c55e;
+  --accent-blue: #3b82f6;
+  --accent-purple: #8b5cf6;
+  --accent-cyan: #06b6d4;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --glass: rgba(17, 24, 39, 0.75);
+  --glass-border: rgba(75, 85, 99, 0.25);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root { min-height: 100vh; display: flex; flex-direction: column; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(239,68,68,0.3); border-radius: 3px; }
+
+/* ── Glass Card ─────────────────────────────────────── */
+.glass { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: var(--radius); }
+.glass-hover { transition: all 0.3s ease; }
+.glass-hover:hover { border-color: rgba(239,68,68,0.3); box-shadow: 0 4px 30px rgba(239,68,68,0.08); transform: translateY(-1px); }
+
+/* ── Command Center Grid BG ─────────────────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(75,85,99,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(75,85,99,0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ── Buttons ─────────────────────────────────────────── */
+.btn { padding: 10px 22px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.88rem; cursor: pointer; border: none; transition: all 0.2s ease; font-family: inherit; display: inline-flex; align-items: center; gap: 7px; }
+.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+.btn-danger:hover { box-shadow: 0 4px 20px rgba(239,68,68,0.4); transform: translateY(-1px); }
+.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+.btn-primary:hover { box-shadow: 0 4px 20px rgba(59,130,246,0.4); transform: translateY(-1px); }
+.btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+.btn-success:hover { box-shadow: 0 4px 20px rgba(34,197,94,0.4); transform: translateY(-1px); }
+.btn-ghost { background: rgba(75,85,99,0.2); color: var(--text); border: 1px solid var(--glass-border); }
+.btn-ghost:hover { background: rgba(75,85,99,0.4); border-color: rgba(75,85,99,0.5); }
+.btn-sm { padding: 6px 14px; font-size: 0.78rem; }
+
+/* ── SOS Button ──────────────────────────────────────── */
+.sos-btn {
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, #ef4444 0%, #b91c1c 100%);
+  border: 4px solid rgba(239,68,68,0.5);
+  color: white; font-size: 2rem; font-weight: 900;
+  cursor: pointer; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 0 40px rgba(239,68,68,0.3), 0 0 80px rgba(239,68,68,0.1);
+}
+.sos-btn:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(239,68,68,0.5), 0 0 120px rgba(239,68,68,0.2); }
+.sos-btn:active { transform: scale(0.95); }
+.sos-btn::before {
+  content: ''; position: absolute; inset: -12px;
+  border: 2px solid rgba(239,68,68,0.4); border-radius: 50%;
+  animation: sos-pulse 2s ease-in-out infinite;
+}
+.sos-btn::after {
+  content: ''; position: absolute; inset: -24px;
+  border: 1px solid rgba(239,68,68,0.2); border-radius: 50%;
+  animation: sos-pulse 2s ease-in-out infinite 0.5s;
+}
+
+/* ── Severity Badges ─────────────────────────────────── */
+.sev { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.sev-critical { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.sev-high { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+.sev-medium { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+.sev-low { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+
+/* ── Status Badges ───────────────────────────────────── */
+.status { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+.status-reported { background: rgba(239,68,68,0.1); color: #f87171; }
+.status-assigned { background: rgba(245,158,11,0.1); color: #fbbf24; }
+.status-acknowledged { background: rgba(59,130,246,0.1); color: #60a5fa; }
+.status-responding { background: rgba(139,92,246,0.1); color: #a78bfa; }
+.status-resolved { background: rgba(34,197,94,0.1); color: #4ade80; }
+
+/* ── Input ───────────────────────────────────────────── */
+.input { background: rgba(30,41,59,0.8); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 10px 14px; color: var(--text); font-size: 0.88rem; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; outline: none; }
+.input::placeholder { color: var(--text-dim); }
+.input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+.label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: block; }
+
+/* ── Stat Card ───────────────────────────────────────── */
+.stat { padding: 18px 22px; border-radius: var(--radius); position: relative; overflow: hidden; }
+.stat-val { font-size: 2rem; font-weight: 800; line-height: 1; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.02em; }
+.stat-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+
+/* ── Crisis Pulse ────────────────────────────────────── */
+.crisis-pulse { position: relative; }
+.crisis-pulse::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit; border: 2px solid var(--accent-red);
+  animation: crisis-glow 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── Timeline ────────────────────────────────────────── */
+.timeline-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue); flex-shrink: 0; margin-top: 5px; }
+.timeline-dot-critical { background: var(--accent-red); }
+.timeline-dot-success { background: var(--accent-green); }
+.timeline-line { width: 2px; background: var(--glass-border); flex-shrink: 0; margin-left: 4px; min-height: 24px; }
+
+/* ── Animations ──────────────────────────────────────── */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes sos-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0; } }
+@keyframes crisis-glow { 0%, 100% { border-color: rgba(239,68,68,0.3); box-shadow: 0 0 8px rgba(239,68,68,0.1); } 50% { border-color: rgba(239,68,68,0.7); box-shadow: 0 0 20px rgba(239,68,68,0.3); } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.anim-up { animation: fadeInUp 0.45s ease-out forwards; opacity: 0; }
+.anim-in { animation: fadeIn 0.35s ease-out forwards; opacity: 0; }
+.anim-slide { animation: slideIn 0.4s ease-out forwards; opacity: 0; }
+.anim-blink { animation: blink 1s ease-in-out infinite; }
+
+.spinner { width: 28px; height: 28px; border: 3px solid var(--glass-border); border-top-color: var(--accent-red); border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hide-mobile { display: none !important; }
+  .sos-btn { width: 160px; height: 160px; font-size: 1.5rem; }
+}
+
+/* ── Accessibility ───────────────────────────────────── */
+
+/* Skip-to-content link — visible only on keyboard focus */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 10000;
+  background: var(--accent-blue);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 0 0 8px 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* Screen reader only — hidden visually but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus indicators — enhanced for keyboard nav */
+*:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.2);
+}
+
+/* Reduced motion — respect user preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .sos-ring { display: none; }
+}
+
+/* High contrast mode — triggered by prefers-contrast or .high-contrast class */
+@media (prefers-contrast: more), .high-contrast {
+  :root {
+    --bg-primary: #000;
+    --bg-secondary: #111;
+    --text: #fff;
+    --text-muted: #e0e0e0;
+    --text-dim: #ccc;
+    --glass-border: rgba(255,255,255,0.4);
+  }
+  .glass { border-width: 2px; }
+  .severity-critical, .severity-high { font-weight: 900; }
+}
