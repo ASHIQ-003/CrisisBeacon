@@ -1,27 +1,22 @@
 import { Link } from 'react-router-dom';
+import { FiHome } from 'react-icons/fi';
 
 export default function NotFound() {
   return (
-    <div className="gradient-bg" style={{
-      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative',
-    }}>
-      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }} className="animate-fade-in-up">
-        <div style={{
-          fontSize: '6rem', fontWeight: 900, letterSpacing: '-0.05em',
-          background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          lineHeight: 1,
-        }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '70vh' }}>
+      <div className="glass anim-up" style={{ padding: 48, textAlign: 'center', maxWidth: 440 }}>
+        <div style={{ fontSize: '4rem', marginBottom: 12 }}>🚫</div>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'JetBrains Mono, monospace', marginBottom: 8, color: 'var(--accent-red)' }}>
           404
-        </div>
-        <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginTop: 8, marginBottom: 8 }}>
+        </h1>
+        <p style={{ fontSize: '0.92rem', fontWeight: 600, marginBottom: 4 }}>
           Page Not Found
-        </h2>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.92rem', marginBottom: 24, maxWidth: 400 }}>
-          The page you're looking for doesn't exist or has been moved.
         </p>
-        <Link to="/" className="btn-accent" style={{ textDecoration: 'none', padding: '12px 32px' }}>
-          Go to Dashboard
+        <p style={{ color: 'var(--text-dim)', fontSize: '0.82rem', marginBottom: 24, lineHeight: 1.5 }}>
+          This sector doesn't exist in our command grid. Return to the Command Center.
+        </p>
+        <Link to="/" className="btn btn-danger" style={{ textDecoration: 'none' }}>
+          <FiHome size={14} /> Command Center
         </Link>
       </div>
     </div>

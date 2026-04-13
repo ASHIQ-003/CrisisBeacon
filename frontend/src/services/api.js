@@ -1,42 +1,23 @@
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: '/api',
-  timeout: 10000,
-  headers: { 'Content-Type': 'application/json' },
-});
+const API_BASE = import.meta.env.VITE_API_URL || '';
+const api = axios.create({ baseURL: `${API_BASE}/api`, timeout: 10000, headers: { 'Content-Type': 'application/json' } });
 
-// ── Needs ──────────────────────────────────────────────────────────
-export const fetchNeeds = (params = {}) =>
-  api.get('/needs', { params }).then(r => r.data);
+// Crises
+export const fetchCrises = (params = {}) => api.get('/crises', { params }).then(r => r.data);
+export const fetchCrisis = (id) => api.get(`/crises/${id}`).then(r => r.data);
+export const reportCrisis = (data) => api.post('/crises', data).then(r => r.data);
+export const acknowledgeCrisis = (id, staffId) => api.post(`/crises/${id}/acknowledge`, { staff_id: staffId }).then(r => r.data);
+export const respondCrisis = (id) => api.post(`/crises/${id}/respond`).then(r => r.data);
+export const resolveCrisis = (id, notes) => api.post(`/crises/${id}/resolve`, { notes }).then(r => r.data);
+export const escalateCrisis = (id) => api.post(`/crises/${id}/escalate`).then(r => r.data);
+export const generateDebrief = (id) => api.post(`/crises/${id}/debrief`).then(r => r.data);
 
-export const fetchNeedById = (id) =>
-  api.get(`/needs/${id}`).then(r => r.data);
+// Staff
+export const fetchStaff = (params = {}) => api.get('/staff', { params }).then(r => r.data);
+export const fetchVenue = () => api.get('/staff/venue/info').then(r => r.data);
 
-export const createNeed = (data) =>
-  api.post('/needs', data).then(r => r.data);
-
-export const importFromSheets = (sheetUrl, range) =>
-  api.post('/needs/import', { sheet_url: sheetUrl, range }).then(r => r.data);
-
-// ── Volunteers ─────────────────────────────────────────────────────
-export const fetchVolunteers = () =>
-  api.get('/volunteers').then(r => r.data);
-
-export const registerVolunteer = (data) =>
-  api.post('/volunteers/register', data).then(r => r.data);
-
-export const fetchVolunteerMatches = (needId) =>
-  api.get(`/volunteers/matches/${needId}`).then(r => r.data);
-
-export const fetchAllMatches = () =>
-  api.get('/volunteers/matches/all').then(r => r.data);
-
-// ── Assignments ────────────────────────────────────────────────────
-export const assignVolunteer = (needId, volunteerId, ngo = null) =>
-  api.post('/assign', { need_id: needId, volunteer_id: volunteerId, ngo }).then(r => r.data);
-
-export const fetchAssignments = () =>
-  api.get('/assign').then(r => r.data);
+// Analytics
+export const fetchAnalytics = () => api.get('/analytics').then(r => r.data);
 
 export default api;

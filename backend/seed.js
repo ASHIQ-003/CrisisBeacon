@@ -1,129 +1,38 @@
 /**
- * seed.js — loads demo data into the store without needing a real Google Sheet.
- * Run: node seed.js  (then start the server)
- * Useful for hackathon demo if Sheets API isn't set up yet.
+ * seed.js — Demo data for CrisisBeacon hackathon demo.
  */
+const { setStaff, setVenue } = require('./store');
 
-const { setNeeds, addVolunteer } = require("./store");
-
-const sampleNeeds = [
-  {
-    id: "need_demo_1",
-    location_name: "Anna Nagar, Chennai",
-    latitude: 13.0878,
-    longitude: 80.2101,
-    need_type: "Food distribution",
-    description: "12 families without ration supplies after flooding",
-    urgency: 1,
-    urgency_label: "Critical",
-    families_affected: 12,
-    reported_date: "2026-04-10",
-    status: "open",
-  },
-  {
-    id: "need_demo_2",
-    location_name: "Velachery, Chennai",
-    latitude: 12.9815,
-    longitude: 80.2180,
-    need_type: "Medical camp assistance",
-    description: "Need volunteers for mobile health screening camp",
-    urgency: 2,
-    urgency_label: "Moderate",
-    families_affected: 40,
-    reported_date: "2026-04-11",
-    status: "open",
-  },
-  {
-    id: "need_demo_3",
-    location_name: "Tambaram, Chennai",
-    latitude: 12.9249,
-    longitude: 80.1000,
-    need_type: "Tutoring",
-    description: "Weekend literacy support for underprivileged students",
-    urgency: 3,
-    urgency_label: "Low",
-    families_affected: 8,
-    reported_date: "2026-04-09",
-    status: "open",
-  },
-  {
-    id: "need_demo_4",
-    location_name: "Royapuram, Chennai",
-    latitude: 13.1143,
-    longitude: 80.2961,
-    need_type: "Logistics",
-    description: "Transport relief materials to flood-affected fishing community",
-    urgency: 1,
-    urgency_label: "Critical",
-    families_affected: 25,
-    reported_date: "2026-04-10",
-    status: "open",
-  },
-  {
-    id: "need_demo_5",
-    location_name: "Adyar, Chennai",
-    latitude: 13.0012,
-    longitude: 80.2565,
-    need_type: "Counseling",
-    description: "Mental health support sessions for disaster-affected residents",
-    urgency: 2,
-    urgency_label: "Moderate",
-    families_affected: 15,
-    reported_date: "2026-04-11",
-    status: "open",
-  },
+const demoStaff = [
+  { id: 'staff_1', name: 'Rajesh Kumar', role: 'security', floor: 'Floor 1', status: 'available', phone: '+919800000001', crises_handled: 8 },
+  { id: 'staff_2', name: 'Anitha Devi', role: 'medical', floor: 'Floor 2', status: 'available', phone: '+919800000002', crises_handled: 12 },
+  { id: 'staff_3', name: 'Mohammed Ali', role: 'maintenance', floor: 'Floor 1', status: 'available', phone: '+919800000003', crises_handled: 5 },
+  { id: 'staff_4', name: 'Priya Sharma', role: 'security', floor: 'Floor 3', status: 'available', phone: '+919800000004', crises_handled: 15 },
+  { id: 'staff_5', name: 'David Chen', role: 'management', floor: 'Floor 1', status: 'available', phone: '+919800000005', crises_handled: 20 },
+  { id: 'staff_6', name: 'Fatima Begum', role: 'medical', floor: 'Floor 4', status: 'available', phone: '+919800000006', crises_handled: 7 },
+  { id: 'staff_7', name: 'Vikram Patel', role: 'security', floor: 'Floor 2', status: 'available', phone: '+919800000007', crises_handled: 3 },
+  { id: 'staff_8', name: 'Sunita Reddy', role: 'maintenance', floor: 'Floor 3', status: 'available', phone: '+919800000008', crises_handled: 6 },
 ];
 
-const sampleVolunteers = [
-  {
-    name: "Priya Subramaniam",
-    phone: "+919876543210",
-    skills: ["food distribution", "cooking"],
-    latitude: 13.0820,
-    longitude: 80.2100,
-    availability: "available",
-    language: "ta",
+const demoVenue = {
+  name: 'Grand Horizon Hotel & Convention Center',
+  address: '120 Marina Boulevard, Chennai - 600001',
+  floors: ['Lobby', 'Floor 1', 'Floor 2', 'Floor 3', 'Floor 4', 'Floor 5', 'Rooftop'],
+  rooms_per_floor: 20,
+  areas: {
+    'Lobby': ['Reception', 'Lounge', 'Restaurant', 'Bar', 'Pool Area', 'Parking'],
+    'Floor 1': ['Room 101-120', 'Conference Hall A', 'Business Center', 'Gym'],
+    'Floor 2': ['Room 201-220', 'Conference Hall B', 'Spa', 'Laundry'],
+    'Floor 3': ['Room 301-320', 'Banquet Hall', 'Kitchen', 'Staff Room'],
+    'Floor 4': ['Room 401-420', 'Presidential Suite', 'Private Dining'],
+    'Floor 5': ['Room 501-520', 'Executive Lounge'],
+    'Rooftop': ['Sky Bar', 'Helipad', 'Garden Terrace'],
   },
-  {
-    name: "Arjun Mehta",
-    phone: "+919876543211",
-    skills: ["first aid", "medical", "nursing"],
-    latitude: 12.9900,
-    longitude: 80.2200,
-    availability: "available",
-    language: "en",
-  },
-  {
-    name: "Lakshmi Rajan",
-    phone: "+919876543212",
-    skills: ["tutoring", "education", "teaching"],
-    latitude: 12.9300,
-    longitude: 80.1100,
-    availability: "scheduled",
-    language: "ta",
-  },
-  {
-    name: "Vikram Nair",
-    phone: "+919876543213",
-    skills: ["logistics", "transport", "driving"],
-    latitude: 13.1000,
-    longitude: 80.2900,
-    availability: "available",
-    language: "en",
-  },
-  {
-    name: "Meena Chandrasekaran",
-    phone: "+919876543214",
-    skills: ["counseling", "social work", "mental health"],
-    latitude: 13.0100,
-    longitude: 80.2600,
-    availability: "available",
-    language: "hi",
-  },
-];
+};
 
-setNeeds(sampleNeeds);
-sampleVolunteers.forEach(addVolunteer);
+setStaff(demoStaff);
+setVenue(demoVenue);
 
-console.log(`✅ Seeded ${sampleNeeds.length} needs and ${sampleVolunteers.length} volunteers`);
-console.log("Now run: node index.js");
+console.log(`✅ Seeded ${demoStaff.length} staff members for "${demoVenue.name}"`);
+
+module.exports = { demoStaff, demoVenue };
