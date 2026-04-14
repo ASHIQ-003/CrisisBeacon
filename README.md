@@ -15,7 +15,7 @@
 
 CrisisBeacon is an enterprise-grade emergency response platform designed specifically for hotels, campuses, and large venues. It bridges the critical 5-minute gap between an emergency being reported and first responders arriving. By empowering guests to instantly report emergencies via zero-friction QR codes and equipping staff with a real-time Command Center, CrisisBeacon eliminates communication delays over walkie-talkies or phone systems.
 
-![Landing Page](docs/images/landing_page_review_1776103464682.webp)
+
 
 ## ✨ Key Features
 
