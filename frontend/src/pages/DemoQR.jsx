@@ -35,7 +35,8 @@ export default function DemoQR() {
 
     const initializeNetworkUrl = async () => {
       try {
-        const res = await fetch('/api/network-ip');
+        const API_BASE = import.meta.env.VITE_API_URL || '';
+        const res = await fetch(`${API_BASE}/api/network-ip`);
         const data = await res.json();
         const port = window.location.port || '5173';
         const protocol = window.location.protocol;

@@ -90,11 +90,9 @@ io.on('connection', (socket) => {
   });
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  server.listen(PORT, () => {
-    console.log(`🚨 CrisisBeacon API running on http://localhost:${PORT}`);
-    console.log(`⚡ WebSocket ready on ws://localhost:${PORT}`);
-  });
-}
+server.listen(PORT, () => {
+  console.log(`🚨 CrisisBeacon API running on port ${PORT}`);
+  console.log(`⚡ WebSocket ready on port ${PORT}`);
+});
 
 module.exports = app;

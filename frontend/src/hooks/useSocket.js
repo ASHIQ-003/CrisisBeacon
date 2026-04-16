@@ -8,7 +8,6 @@ export function getSocket() {
     try {
       const SOCKET_BASE = import.meta.env.VITE_API_URL || '';
       socket = io(SOCKET_BASE || window.location.origin, {
-        transports: ['polling'], // polling only — Vercel serverless doesn't support WebSocket upgrades
         reconnectionAttempts: 3,
         timeout: 5000,
       });
