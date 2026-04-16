@@ -7,7 +7,6 @@ const { findBestStaff } = require('../engine/assignment');
 const { notifyStaffSMS } = require('../notify');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-
 /**
  * In-memory rate limiter to prevent spam
  * Limits: 3 requests per 60 seconds per IP
@@ -18,7 +17,7 @@ const rateLimitStore = new Map();
  * POST /api/crises
  * Report a new crisis (from Guest SOS or Command Center).
  */
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
   const now = Date.now();
   
@@ -39,7 +38,7 @@ router.post('/', (req, res) => {
   if (!type) return res.status(400).json({ error: 'type is required' });
 
   // Automated Protocol Engine
-  const existingCrises = getCrises();
+  const existingCrises = await getCrises();
   const { severity, protocols, escalation_note } = triageCrisis(type, description, existingCrises, floor);
 
   const crisis = {
@@ -68,7 +67,7 @@ router.post('/', (req, res) => {
   };
 
   // Auto-assign best available staff
-  const staff = getStaff();
+  const staff = await getStaff();
   const bestStaff = findBestStaff(type, floor, staff);
   if (bestStaff) {
     crisis.assigned_to = bestStaff.id;
@@ -80,14 +79,14 @@ router.post('/', (req, res) => {
       time: new Date().toISOString(),
       actor: 'System',
     });
-    updateStaff(bestStaff.id, { status: 'responding', current_crisis: crisis.id });
+    await updateStaff(bestStaff.id, { status: 'responding', current_crisis: crisis.id });
   }
 
   if (escalation_note) {
     crisis.timeline.push({ event: escalation_note, time: new Date().toISOString(), actor: 'System' });
   }
 
-  addCrisis(crisis);
+  await addCrisis(crisis);
 
   // Emit via Socket.io (attached to req by middleware)
   if (req.io) {
@@ -109,16 +108,16 @@ router.post('/', (req, res) => {
  * GET /api/crises
  * List all crises, optionally filtered.
  */
-router.get('/', (req, res) => {
-  const crises = getCrises(req.query);
+router.get('/', async (req, res) => {
+  const crises = await getCrises(req.query);
   res.json({ count: crises.length, crises });
 });
 
 /**
  * GET /api/crises/:id
  */
-router.get('/:id', (req, res) => {
-  const crisis = getCrisisById(req.params.id);
+router.get('/:id', async (req, res) => {
+  const crisis = await getCrisisById(req.params.id);
   if (!crisis) return res.status(404).json({ error: 'Crisis not found' });
   res.json({ crisis });
 });
@@ -127,110 +126,122 @@ router.get('/:id', (req, res) => {
  * POST /api/crises/:id/acknowledge
  * Staff acknowledges the crisis.
  */
-router.post('/:id/acknowledge', (req, res) => {
+router.post('/:id/acknowledge', async (req, res) => {
   const { staff_id } = req.body;
-  const crisis = getCrisisById(req.params.id);
+  const crisis = await getCrisisById(req.params.id);
   if (!crisis) return res.status(404).json({ error: 'Crisis not found' });
 
-  const staffMember = staff_id ? getStaffById(staff_id) : null;
+  const staffMember = staff_id ? await getStaffById(staff_id) : null;
   const staffName = staffMember?.name || 'Staff';
 
-  crisis.status = 'acknowledged';
-  crisis.acknowledged_at = new Date().toISOString();
-  if (staff_id && !crisis.assigned_to) {
-    crisis.assigned_to = staff_id;
-    crisis.assigned_staff_name = staffName;
-    crisis.assigned_at = new Date().toISOString();
-    if (staffMember) updateStaff(staff_id, { status: 'responding', current_crisis: crisis.id });
+  const updates = {
+    status: 'acknowledged',
+    acknowledged_at: new Date().toISOString(),
   }
 
-  addCrisisEvent(crisis.id, {
+  if (staff_id && !crisis.assigned_to) {
+    updates.assigned_to = staff_id;
+    updates.assigned_staff_name = staffName;
+    updates.assigned_at = new Date().toISOString();
+    if (staffMember) await updateStaff(staff_id, { status: 'responding', current_crisis: crisis.id });
+  }
+
+  const updatedCrisis = await updateCrisis(crisis.id, updates);
+
+  await addCrisisEvent(crisis.id, {
     event: `Acknowledged by ${staffName}`,
     time: new Date().toISOString(),
     actor: staffName,
   });
 
-  if (req.io) req.io.emit('crisis:updated', crisis);
-  res.json({ message: 'Crisis acknowledged', crisis });
+  // Re-fetch to emit updated state
+  const finalCrisis = await getCrisisById(crisis.id);
+  if (req.io) req.io.emit('crisis:updated', finalCrisis);
+  res.json({ message: 'Crisis acknowledged', crisis: finalCrisis });
 });
 
 /**
  * POST /api/crises/:id/respond
  * Staff marks they are actively responding.
  */
-router.post('/:id/respond', (req, res) => {
-  const crisis = getCrisisById(req.params.id);
+router.post('/:id/respond', async (req, res) => {
+  const crisis = await getCrisisById(req.params.id);
   if (!crisis) return res.status(404).json({ error: 'Crisis not found' });
 
-  crisis.status = 'responding';
+  await updateCrisis(crisis.id, { status: 'responding' });
   const staffName = crisis.assigned_staff_name || 'Staff';
 
-  addCrisisEvent(crisis.id, {
+  await addCrisisEvent(crisis.id, {
     event: `${staffName} is responding on-site`,
     time: new Date().toISOString(),
     actor: staffName,
   });
 
-  if (req.io) req.io.emit('crisis:updated', crisis);
-  res.json({ message: 'Responding', crisis });
+  const finalCrisis = await getCrisisById(crisis.id);
+  if (req.io) req.io.emit('crisis:updated', finalCrisis);
+  res.json({ message: 'Responding', crisis: finalCrisis });
 });
 
 /**
  * POST /api/crises/:id/escalate
  * Escalate to external 911 / EMS.
  */
-router.post('/:id/escalate', (req, res) => {
-  const crisis = getCrisisById(req.params.id);
+router.post('/:id/escalate', async (req, res) => {
+  const crisis = await getCrisisById(req.params.id);
   if (!crisis) return res.status(404).json({ error: 'Crisis not found' });
 
-  crisis.escalated = true;
+  await updateCrisis(crisis.id, { escalated: true });
   
-  addCrisisEvent(crisis.id, {
+  await addCrisisEvent(crisis.id, {
     event: `🚨 Automated Dispatch sent to Local 911 Authorities`,
     time: new Date().toISOString(),
     actor: 'System (911 Dispatch)',
   });
 
-  if (req.io) req.io.emit('crisis:updated', crisis);
-  res.json({ message: 'Escalated to 911', crisis });
+  const finalCrisis = await getCrisisById(crisis.id);
+  if (req.io) req.io.emit('crisis:updated', finalCrisis);
+  res.json({ message: 'Escalated to 911', crisis: finalCrisis });
 });
 
 /**
  * POST /api/crises/:id/resolve
  * Mark the crisis as resolved.
  */
-router.post('/:id/resolve', (req, res) => {
+router.post('/:id/resolve', async (req, res) => {
   const { notes } = req.body;
-  const crisis = getCrisisById(req.params.id);
+  const crisis = await getCrisisById(req.params.id);
   if (!crisis) return res.status(404).json({ error: 'Crisis not found' });
 
-  crisis.status = 'resolved';
-  crisis.resolved_at = new Date().toISOString();
-  crisis.resolution_notes = notes || '';
+  await updateCrisis(crisis.id, {
+    status: 'resolved',
+    resolved_at: new Date().toISOString(),
+    resolution_notes: notes || '',
+  });
 
   const staffName = crisis.assigned_staff_name || 'Staff';
 
   // Free up the assigned staff
   if (crisis.assigned_to) {
-    const member = getStaffById(crisis.assigned_to);
+    const member = await getStaffById(crisis.assigned_to);
     if (member) {
-      updateStaff(crisis.assigned_to, {
+      const updatedStaff = await updateStaff(crisis.assigned_to, {
         status: 'available',
         current_crisis: null,
         crises_handled: (member.crises_handled || 0) + 1,
       });
-      if (req.io) req.io.emit('staff:updated', { id: member.id, status: 'available', current_crisis: null });
+      if (req.io) req.io.emit('staff:updated', updatedStaff);
     }
   }
 
-  addCrisisEvent(crisis.id, {
+  await addCrisisEvent(crisis.id, {
     event: `Crisis resolved by ${staffName}${notes ? ': ' + notes : ''}`,
     time: new Date().toISOString(),
     actor: staffName,
   });
 
-  if (req.io) req.io.emit('crisis:resolved', crisis);
-  res.json({ message: 'Crisis resolved', crisis });
+  const finalCrisis = await getCrisisById(crisis.id);
+  if (req.io) req.io.emit('crisis:resolved', finalCrisis);
+  res.json({ message: 'Crisis resolved', crisis: finalCrisis });
 });
 
 /**
@@ -238,7 +249,7 @@ router.post('/:id/resolve', (req, res) => {
  * Generates an AI post-incident report.
  */
 router.post('/:id/debrief', async (req, res) => {
-  const crisis = getCrisisById(req.params.id);
+  const crisis = await getCrisisById(req.params.id);
   if (!crisis) return res.status(404).json({ error: 'Crisis not found' });
   if (crisis.status !== 'resolved') return res.status(400).json({ error: 'Crisis must be resolved to generate a debrief' });
   
@@ -281,9 +292,10 @@ Please structure the report with:
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     
-    crisis.ai_debrief = text;
+    await updateCrisis(crisis.id, { ai_debrief: text });
 
-    if (req.io) req.io.emit('crisis:updated', crisis);
+    const finalCrisis = await getCrisisById(crisis.id);
+    if (req.io) req.io.emit('crisis:updated', finalCrisis);
     res.json({ message: 'Debrief generated', debrief: text });
   } catch (error) {
     console.error('AI Generation Error:', error);

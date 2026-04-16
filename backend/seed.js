@@ -30,9 +30,14 @@ const demoVenue = {
   },
 };
 
-setStaff(demoStaff);
-setVenue(demoVenue);
-
-console.log(`✅ Seeded ${demoStaff.length} staff members for "${demoVenue.name}"`);
+(async () => {
+  try {
+    await setStaff(demoStaff);
+    await setVenue(demoVenue);
+    console.log(`✅ Seeded ${demoStaff.length} staff members for "${demoVenue.name}"`);
+  } catch (err) {
+    console.error('Failed to seed:', err);
+  }
+})();
 
 module.exports = { demoStaff, demoVenue };
