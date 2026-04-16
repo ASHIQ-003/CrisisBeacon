@@ -1,11 +1,22 @@
 /**
  * store.js — Persistent data store for CrisisBeacon.
- * Uses @vercel/kv for serverless persistence on Vercel, 
+ * Uses @upstash/redis for serverless persistence on Vercel, 
  * with a fallback to in-memory for local zero-setup development.
  */
-const { kv } = require('@vercel/kv');
+const { Redis } = require('@upstash/redis');
 
-const useKV = !!process.env.KV_REST_API_URL;
+let kv;
+if (process.env.UPSTASH_REDIS_REST_URL) {
+  kv = Redis.fromEnv(); // Reads UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN
+} else if (process.env.KV_REST_API_URL) {
+  // Backwards compatibility if they used the standard Vercel Redis preset
+  kv = new Redis({
+    url: process.env.KV_REST_API_URL,
+    token: process.env.KV_REST_API_TOKEN,
+  });
+}
+
+const useKV = !!kv;
 
 const localStore = {
   crises: [],
